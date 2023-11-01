@@ -275,3 +275,34 @@ class Compra {
 	method bienValorados() = libros.filter({ libro => libro.valoracion() > 4000 })
 	method nombresAutores() = libros.map({ libro => libro.autor() })
 }
+
+/////////////////////////////////////////
+
+class LibroInicial inherits Persona{
+  return leGustaElLibro(self)
+}
+
+object LibroDrama inherits LibroInicial {
+ 
+  method esAptoParaUnaPersona (libro){
+	return libro.valoracion > 4000 && tieneUnaCantidadParDeCompras()
+  }
+  method tieneUnaCantidadParDeCompras(persona){
+		return Main.(persona.compras())
+  }
+} 
+
+object libroCiencia inherits LibroInicial{
+	const property editorial = ""
+  method esAptoParaUnaPersona(self){
+	return editorial == ("Pearson")
+  }
+}
+ object novelasCaras inherits LibroInicial{
+		method esAptoParaUnaPersona(persona){
+			return persona.dinero() > persona.precioLimite()
+		}
+ }
+
+ object lasAventurasDePatoruzu inherits Libro({autor="Dante Quinterno",paginas=35})
+
