@@ -1,35 +1,62 @@
+ //Los distintos empleados que necesitamos representar son o bien espías u oficinistas, los cuales reaccionan de maneras diversas:
+ //Además algunos empleados son jefes de otros empleados
+
+ // method saludCritica() // esto puedo manejarlo desde el tipo de empleado , en vez de hacer un metodo abstracto , nose puntualmente en que mejora pero bueno.
+ // con esto puedo eliminar la herencia puesta en espias
+
  class Empleados{
   
   const property habilidades = []
-  var property saludVariable = 0 
-  method  saludCritica () =  0 
+  var property salud = 0 
+  var property tipoEmpleado = espias
+  var property dañoRecibido = 0
+  method incapacitado(){
+  	return salud < tipoEmpleado.saludCritica()
+  	}
 
-  method incapacitado()= saludVariable < self.saludCritica()
-  method puedeUsarLaHabilidad(persona)= !incapacitado && habilidades.contains(persona.habilidad)// considerar el caso de los jefes
-  method cumplirUnaMision(persona,mision) = persona.habilidades() == mision.habilidadesRequeridas() // chequear esto para equipos
-  method sobreviveAUnaMision()
- }
+  method puedeUsarUna(habilidad){
+  	return !(self.incapacitado()) && self.poseeLa(habilidad)
+  }
+  method poseeLa(habilidad) = habilidades.contains(habilidad)
+  
+  method recibirDanio(cantidad){ salud = salud - cantidad}
+}
 
- class Mision{
-	const property habilidadesRequeridas = []
- }
+object espias {
+    method saludCritica() = 15
+}
 
- class Espias inherits  Empleados{
-   
-    method aprenderNuevasHabilidades(mision) {
-      self.habilidades.add(mision.habilidad)
-	} 
-	 
-	method override saludCritica() = 15
+class oficinistas { // aca es clase porque oficinista tiene estado , osea tiene atributos propios
+   const cantidadEstrellas = 0
+   method saludCritica() = 40 - (5 * cantidadEstrellas)
+}
 
- }
- class Oficinitas inherits  Empleados{
+class Jefe inherits  Empleados{
+	var property subordinados
+	override method puedeUsarUna(habilidad) = super(habilidad) || self.algunoDeLosSubordinadosPuedeUsarLa(habilidad)
 
-	method override saludCritica() = 40 - cantidadDeEstrellasObtenidads() *  5
-	method sobreviveAUnaMision()
- }
+	method algunoDeLosSubordinadosPuedeUsarLa(habilidad) = subordinados().any{subordinado =>subordinado.puedeUsarUna(habilidad)}
+}
 
- class DangerZone{
-  const property misiones = []
+class Mision{
+	var property habilidadesRequeridas = []
+	// method poseeTodasLasHabilidades(empleado) = habilidadesRequeridas.foreach({ // foreach aca no va .
+	//  habilidad => empleado.poseeLa(hablidad)
+	// })
+	
+	// method poseeTodasLasHabilidades(empleado) = any({
+	// 	 self.poseeTodasLasHabilidades(empleado)
+	// })
+  method poseeTodasLasHabilidades(empleado) {
+    if ( not selfposeeTodasLasHabilidades(empleado)){
+      self.error{"La mision no se puede cumplir"}
+    }
+  }
+  method poseeTodasLasHabilidades(asignado) = habilidadesRequeridas.all({
+    habilidad => asignado.poseeLa(hablidad)
+  })
 
- }
+
+}
+
+
