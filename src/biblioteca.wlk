@@ -20,10 +20,25 @@
   method poseeLa(habilidad) = habilidades.contains(habilidad)
   
   method recibirDanio(cantidad){ salud = salud - cantidad}
+  method estaVivo() =salud > 0
+  method finalizarMision(mision){
+    if(self.estaVivo()){
+      self.completarMision(mision)
+    }
+  }
+  method completarMision(mision){
+    tipoEmpleado.completarMision(mision,self)  
+  }
+  method aprenderHabilidad(habilidad){
+    habilidades.add(habilidad)
+  }
 }
 
 object espias {
     method saludCritica() = 15
+    method completarMision(mision,empleado){
+      mision.enseniarHabilidades()
+    }
 }
 
 class oficinistas { // aca es clase porque oficinista tiene estado , osea tiene atributos propios
@@ -40,23 +55,27 @@ class Jefe inherits  Empleados{
 
 class Mision{
 	var property habilidadesRequeridas = []
-	// method poseeTodasLasHabilidades(empleado) = habilidadesRequeridas.foreach({ // foreach aca no va .
-	//  habilidad => empleado.poseeLa(hablidad)
-	// })
-	
-	// method poseeTodasLasHabilidades(empleado) = any({
-	// 	 self.poseeTodasLasHabilidades(empleado)
-	// })
-  method poseeTodasLasHabilidades(empleado) {
-    if ( not selfposeeTodasLasHabilidades(empleado)){
+  const peligrosidad
+  method serCumplidadPor(asignado) {
+    if ( not self.poseeTodasLasHabilidades(asignado)){
       self.error{"La mision no se puede cumplir"}
     }
+    asignado.sufrirDanio(peligrosidad)
+    asignado.completarMision(self,empleado)
   }
   method poseeTodasLasHabilidades(asignado) = habilidadesRequeridas.all({
     habilidad => asignado.poseeLa(hablidad)
   })
+  method enseniarHabilidades(empleado) {
+    self.habilidadesQueNoPosee(empleado)
+      .foreach({hab=>hab.aprenderHabilidad(hab)}) // el forach lo uso para un post
+  }
 
-
+ method habilidadesQueNoPosee(empleado){
+  habilidadesRequeridas.filter({
+    hab=> not empleado.poseeLa(hab)
+   })
+  }
 }
 
 
