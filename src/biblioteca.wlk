@@ -1,66 +1,101 @@
 class Cocineros{
 
-    var property tipoDeCocinero = Plato
-    const property catar  = 0
-    var property cantidadDeCaloriasPreferida = 0
+    var property tipoDeCocinero //= Pastelero
+    //var property cantidadDeCaloriasPreferida = 0
    
     method calificacionDelCocinero(plato) = tipoDeCocinero.calificacion(plato)
 
     method cambiarDeEspecialidad(_tipoDeCocinero){
-       return tipoDeCocinero = _tipoDeCocinero
+        tipoDeCocinero = _tipoDeCocinero
     }
-    method cocinando(plato) {
-     return tipoDeCocinero.creaUnPlato(plato,self)
+    method cocinando() {
+     return tipoDeCocinero.creaUnPlato(self)
     }
+    
 }
-class Plato{
-  const  property azucar = 0
-  const property bonito = false
-  const  property colores =  0
+class Plato{// clase abstracta
   var property tipoDePlato
+  const property duenio
+  method cantidadDeAzucar() // es un lugar donde guardo metodos
+  // si hago const plato1 = new PLato() no me va a dejar 
+  //pero si hago const plato2 = new Entradas() si me va  dejar conocer las 
+  //calorias
+  //por eso es una clase abstracta
  // const property calorias = 0
-  method calorias() =  (3 * self.azucar) + 100
-  method actualizoEstado(tipoDePlato) {
-
-  }
-
-
-  
+  method calorias() =  (3 * self.cantidadDeAzucar()) + 100
 }
+
+class Entradas inherits Plato{
+ override method cantidadDeAzucar()=0
+ method  esBonita() = true
+}// puedo retornar una instancia de una clase.//chequear si puedo o no
+ // retornar un objeto// creo que si 
+
+class Principales inherits Plato{
+  const azucar
+  const property esBonito
+  override method cantidadDeAzucar()=azucar
+}
+class Postres inherits Plato{
+  const cantidadDeColores
+  override method cantidadDeAzucar()=120
+  method esBonita()= cantidadDeColores > 3
+}
+
+
+
+
 
 class Pastelero{
-   const nivelDeseadoDeDulzor = 0
-   method calificacion(plato) = 10.min((5 * plato.azucar()) / nivelDeseadoDeDulzor)
+   const nivelDeseadoDeDulzor
+   method calificacion(plato) = ((5 * plato.cantidadDeAzucar()) / nivelDeseadoDeDulzor).min(10)
    method cantidadDeColoresDelPlato(plato) = plato.colores()
    method creaUnPlato(plato,cocinero) {
-    return self.cantidadDeColoresDelPlato(plato)/50
+    return self.cantidadDeColoresDelPlato(plato) / 50
    } 
+   method creaUnPlato(cocinero){
+    return new Postres{ cantidadDeColores = nivelDeseadoDeDulzor / 50 ,duenio = cocinero}
+   }
 }
 
 class chef{
-  const limiteCantidadCalorias = 0
-  method creaUnPlato(plato,cocinero)= 
-  method calificacionPorNoLlegarAlaCalificacionPerfecta(plato) = 0
+  const limiteCantidadCalorias
+  method creaUnPlato(cocinero){
+    return new Principales{esBonito = true ,azucar = limiteCantidadCalorias,duenio = cocinero}
+  }
+  method nollegaAlaCalificacionPerfecta(plato) = 0
   method llegaALaCalificacionPerfecta(plato) = plato.bonito() && plato.calorias() <= limiteCantidadCalorias
-  method calificacion(plato) = if(self.llegaALaCalificacionPerfecta(plato)) 10 else self.calificacionPorNoLlegarAlaCalificacionPerfecta()
+  method calificacion(plato) = if(self.llegaALaCalificacionPerfecta(plato)) 10 else self.nollegaAlaCalificacionPerfecta()
 }
 
-object souschef inherits chef{
-
- override method calificacionPorNoLlegarAlaCalificacionPerfecta(plato) = 6.min(plato.calorias()/100)
-
+class Souschef inherits chef{//object
+ override method creaUnPlato(cocinero){
+  return new Entradas{duenio = cocinero}
+ }
+ override method nollegaAlaCalificacionPerfecta(plato) = (plato.calorias()/100).min(6)
 }
 
-// object entradas inherits Plato{
-//   override method bonito {
-//     return true
-//   }  
-// }
-// object principal inherits Plato{
-   
-// }
-// object postre inherits Plato{
-//    method sonBonitos()=
-// }
+class Torneo{
+   const property puntuacion
+   const property catadores = []//lista de catadores
+   const property platos = []
+   method participaDeUnTorneo(cocinero) {
+    platos.add(cocinero.cocinando())
+   }
+   method platoGanador(){// encuentro al mejor plato puntuado
+    return platos.max({plato=>self.puntajeTotalDeUnPlato(unPlato)})
+   }
+	method puntajeTotalDeUnPlato(unPlato) {
+		return catadores.sum({unCatador => unCatador.calificacionDelCocinero(unPlato)})
+	}
+  method encontrarAlCocinero(){
+    if(platos().isEmpty() == 0){
+      throw new UserException(message = "No se puede encontrar un ganador, ya que no hay participantes!") 
+    }
+    return self.platoGanador().duenio()
+  }
+}
+
+
 
 
